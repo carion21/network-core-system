@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remo-api-deployment
+  namespace: remo-api-distribution
+  labels:
+    app: remo-api-distribution
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: remo-api-distribution
+  template:
+    metadata:
+      labels:
+        app: remo-api-distribution
+    spec:
+      containers:
+        - name: remo-api-distribution
+          image: harbor-registry.ocitnetad.ci/remo/remo-api-distribution-image
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: remo-api-distribution-config
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+            requests:
+              cpu: "250m"
+              memory: "512Mi"   

@@ -1,0 +1,17 @@
+variables:
+  # To change (warning) Uncomment to modify.
+  REGISTRY_PROJECT_NAME: remo
+  APP_NAME: ${REGISTRY_PROJECT_NAME}-api-distribution
+  NAMESPACE: ${APP_NAME}
+  IMAGE_NAME: ${APP_NAME}-image
+  DEPLOYMENT_NAME: ${APP_NAME}-deployment
+  SONAR_PROJECT: remo-api-distribution
+  SONAR_TOKEN: sqp_c449fc432954e4334bdd48d7a3f3fde5f1fb77a3
+  KEY_PROJECT: remo-api-distribution
+   
+  TAGGED_IMAGE: ${REGISTRY_HOST}/${REGISTRY_PROJECT_NAME}/${IMAGE_NAME}
+
+include:
+  - project: 'template/pipelines/k8s-deployment' 
+    ref: api
+    file: '/.gitlab-ci.yml'

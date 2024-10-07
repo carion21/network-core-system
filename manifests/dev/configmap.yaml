@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: remo-api-distribution-config
+  namespace: remo-api-distribution
+data:
+  DATABASE_URL: "postgresql://distri_user:DistriPass@10.242.33.221:31765/distri_network_db?schema=reseau_distri"

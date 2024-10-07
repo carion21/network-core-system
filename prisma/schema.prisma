@@ -1,0 +1,188 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SysUser {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  username    String    @unique
+  password    String    @db.VarChar(255)
+  role        String
+  status      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  DataRow     DataRow[]
+}
+
+model Entity {
+  id                  Int                   @id @default(autoincrement())
+  code                String                @db.VarChar(255)
+  label               String                @db.VarChar(255)
+  value               String                @db.VarChar(255)
+  description         String?               @db.Text
+  status              Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  DistributionChannel DistributionChannel[]
+}
+
+model DistributionChannel {
+  id          Int        @id @default(autoincrement())
+  code        String     @db.VarChar(255)
+  label       String     @db.VarChar(255)
+  value       String     @db.VarChar(255)
+  description String?    @db.Text
+  status      Boolean    @default(true)
+  entityId    Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  entity      Entity     @relation(fields: [entityId], references: [id])
+  NodeType    NodeType[]
+}
+
+model NodeType {
+  id                    Int                 @id @default(autoincrement())
+  code                  String              @db.VarChar(255)
+  label                 String              @db.VarChar(255)
+  value                 String              @db.VarChar(255)
+  description           String              @db.Text
+  status                Boolean             @default(true)
+  isDeleted             Boolean             @default(false)
+  distributionChannelId Int
+  nodeTypeParentId      Int?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+  distributionChannel   DistributionChannel @relation(fields: [distributionChannelId], references: [id])
+  Node                  Node[]
+  DataField             DataField[]
+}
+
+model Node {
+  id          Int      @id @default(autoincrement())
+  code        String   @db.VarChar(255)
+  label       String   @db.VarChar(255)
+  value       String   @db.VarChar(255)
+  description String   @db.Text
+  status      Boolean  @default(true)
+  isDeleted   Boolean  @default(false)
+  nodeTypeId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  nodeType    NodeType @relation(fields: [nodeTypeId], references: [id])
+
+  parentConnections NodeConnection[] @relation("ParentNode")
+  childConnections  NodeConnection[] @relation("ChildNode")
+  Individual        Individual[]
+}
+
+model NodeConnection {
+  id           Int       @id @default(autoincrement())
+  parentNodeId Int
+  childNodeId  Int
+  startAt      DateTime  @default(now())
+  endAt        DateTime?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  parentNode   Node      @relation("ParentNode", fields: [parentNodeId], references: [id])
+  childNode    Node      @relation("ChildNode", fields: [childNodeId], references: [id])
+}
+
+model Individual {
+  id         Int       @id @default(autoincrement())
+  code       String    @db.VarChar(255)
+  status     Boolean   @default(true)
+  isDeleted  Boolean   @default(false)
+  nodeId     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  replacedAt DateTime?
+  deletedAt  DateTime?
+  node       Node      @relation(fields: [nodeId], references: [id])
+  DataRow    DataRow[]
+}
+
+model DataFieldType {
+  id          Int         @id @default(autoincrement())
+  code        String      @db.VarChar(255)
+  label       String      @db.VarChar(255)
+  value       String      @db.VarChar(255)
+  description String?     @db.Text
+  status      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  DataRow     DataField[]
+}
+
+model DataField {
+  id              Int           @id @default(autoincrement())
+  code            String        @db.VarChar(255)
+  label           String        @db.VarChar(255)
+  slug            String        @db.VarChar(255)
+  description     String        @db.Text
+  status          Boolean       @default(true)
+  isDeleted       Boolean       @default(false)
+  isPrimaryKey    Boolean       @default(false)
+  optionnal       Boolean       @default(false)
+  fillingType     String?       @default("mixed") @db.VarChar(255)
+  defaultValue    String?       @db.Text
+  exampleValue    String?       @db.Text
+  nodeTypeId      Int
+  dataFieldTypeId Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  nodeType        NodeType      @relation(fields: [nodeTypeId], references: [id])
+  dataFieldType   DataFieldType @relation(fields: [dataFieldTypeId], references: [id])
+  DataRow         DataRow[]
+}
+
+model SelectValue {
+  id        Int      @id @default(autoincrement())
+  value     String   @db.VarChar(255)
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DataRow {
+  id           Int        @id @default(autoincrement())
+  dataFieldId  Int
+  individualId Int
+  value        String     @db.Text
+  sysUserId    Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  dataField    DataField  @relation(fields: [dataFieldId], references: [id])
+  individual   Individual @relation(fields: [individualId], references: [id])
+  sysUser      SysUser?   @relation(fields: [sysUserId], references: [id])
+}
+
+model GuardianSystemLog {
+  id             Int      @id @default(autoincrement())
+  ipAddress      String   @db.VarChar(255)
+  userAgent      String   @db.Text
+  location       String   @db.VarChar(255)
+  route          String   @db.VarChar(255)
+  method         String   @db.VarChar(255)
+  body           String   @db.Text
+  isAuthentified Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
