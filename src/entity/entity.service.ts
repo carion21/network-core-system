@@ -75,16 +75,32 @@ export class EntityService {
 
   async update(id: number, updateEntityDto: UpdateEntityDto) {
     const { label, description } = updateEntityDto;
+
+    // check if entity exists
+    let entity = await this.prismaService.entity.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        DistributionChannel: true,
+      },
+    });
+
     // check if slug exists
     const value = getSlug(label);
     const exists = await this.prismaService.entity.findFirst({
       where: {
         value,
+        id: {
+          not: id,
+        },
       },
     });
-    if (exists && exists.id !== id)
+    if (exists)
       throw new ConflictException(translate('Slug already exists'));
-    const entity = await this.prismaService.entity.update({
+
+    // update the entity
+    const updatedEntity = await this.prismaService.entity.update({
       where: {
         id,
       },
@@ -94,8 +110,19 @@ export class EntityService {
         description,
       },
     });
-    if (!entity)
+    if (!updatedEntity)
       throw new InternalServerErrorException(translate('Entity not updated'));
+
+    // reload the entity
+    entity = await this.prismaService.entity.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        DistributionChannel: true,
+      },
+    });
+
     // return the response
     return {
       message: translate('Entity updated successfully'),

@@ -170,6 +170,7 @@ export class NodeService {
       },
     });
     if (!node) throw new NotFoundException(translate('Node not found'));
+
     // build the architecture of the node
     let children = [];
     const nodeConnections = await this.prismaService.nodeConnection.findMany({
@@ -186,6 +187,7 @@ export class NodeService {
         where: { id: { in: nodeConnections.map((nc) => nc.childNodeId) } },
       });
     node['children'] = children;
+
     // return the response
     return {
       message: translate('Node retrieved successfully'),
@@ -199,6 +201,17 @@ export class NodeService {
     // check if the node exists
     const node = await this.prismaService.node.findUnique({
       where: { id },
+      include: {
+        nodeType: true,
+        Individual: {
+          where: {
+            status: true,
+          },
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
     });
     if (!node) throw new NotFoundException(translate('Node not found'));
 

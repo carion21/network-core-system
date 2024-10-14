@@ -183,12 +183,32 @@ export class NodeTypeService {
   async update(id: number, updateNodeTypeDto: UpdateNodeTypeDto) {
     const { distributionChannelId, label, description, nodeTypeParentId } =
       updateNodeTypeDto;
+
     // check if the node type exists
-    const nodeType = await this.prismaService.nodeType.findUnique({
+    let nodeType = await this.prismaService.nodeType.findUnique({
       where: { id: id, isDeleted: false },
+      include: {
+        distributionChannel: true,
+        DataField: {
+          select: {
+            label: true,
+            slug: true,
+            optionnal: true,
+            fillingType: true,
+            dataFieldType: {
+              select: {
+                label: true,
+                value: true,
+              },
+            },
+          },
+        },
+        Node: true,
+      },
     });
     if (!nodeType)
       throw new NotFoundException(translate('Node type does not exist'));
+
     // check if the distribution channel exists
     const distributionChannel =
       await this.prismaService.distributionChannel.findUnique({
@@ -198,6 +218,7 @@ export class NodeTypeService {
       throw new NotFoundException(
         translate('Distribution channel does not exist'),
       );
+
     // check if the node type parent exists
     if (nodeTypeParentId) {
       const nodeTypeParent = await this.prismaService.nodeType.findUnique({
@@ -212,6 +233,7 @@ export class NodeTypeService {
           translate('Node type cannot be its own parent'),
         );
     }
+
     // check if the slug already exists
     const value = getSlug(label);
     const exists = await this.prismaService.nodeType.findFirst({
@@ -235,10 +257,33 @@ export class NodeTypeService {
         translate('Node type could not be updated'),
       );
 
+    // reload the node type
+    nodeType = await this.prismaService.nodeType.findUnique({
+      where: { id: id, isDeleted: false },
+      include: {
+        distributionChannel: true,
+        DataField: {
+          select: {
+            label: true,
+            slug: true,
+            optionnal: true,
+            fillingType: true,
+            dataFieldType: {
+              select: {
+                label: true,
+                value: true,
+              },
+            },
+          },
+        },
+        Node: true,
+      },
+    });
+
     // return the response
     return {
       message: translate('Node type updated successfully'),
-      data: updatedNodeType,
+      data: nodeType,
     };
   }
 

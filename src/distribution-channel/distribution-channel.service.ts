@@ -278,6 +278,19 @@ export class DistributionChannelService {
     updateDistributionChannelDto: UpdateDistributionChannelDto,
   ) {
     const { entityId, label, description } = updateDistributionChannelDto;
+
+    // check if the distribution channel exists
+    const distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id },
+        include: {
+          entity: true,
+          NodeType: true,
+        },
+      });
+    if (!distributionChannel)
+      throw new NotFoundException(translate('Distribution channel not found'));
+
     // check if the entity exists
     const entity = await this.prismaService.entity.findUnique({
       where: { id: entityId },
@@ -291,7 +304,8 @@ export class DistributionChannelService {
     });
     if (exists && exists.id !== id)
       throw new ConflictException(translate('Slug already exists'));
-    const distributionChannel =
+
+    const updatedDistributionChannel =
       await this.prismaService.distributionChannel.update({
         where: { id },
         data: {
@@ -301,10 +315,11 @@ export class DistributionChannelService {
           // entityId,
         },
       });
-    if (!distributionChannel)
+    if (!updatedDistributionChannel)
       throw new InternalServerErrorException(
         translate('An error occurred while updating the distribution channel'),
       );
+
     // return the response
     return {
       message: translate('Distribution channel updated successfully'),
