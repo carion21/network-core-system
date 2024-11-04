@@ -12,19 +12,26 @@ import {
   getSlug,
   translate,
 } from 'utilities/functions';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SharedService } from 'src/shared/shared.service';
 
 @Injectable()
 export class DistributionChannelService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly sharedService: SharedService,
+  ) {}
 
   async create(createDistributionChannelDto: CreateDistributionChannelDto) {
     const { entityId, label, description } = createDistributionChannelDto;
+
     // check if the entity exists
     const entity = await this.prismaService.entity.findUnique({
       where: { id: entityId },
     });
     if (!entity)
       throw new NotFoundException(translate('Entity does not exist'));
+
     // check if the slug already exists
     const value = getSlug(label);
     const exists = await this.prismaService.distributionChannel.findFirst({
@@ -45,6 +52,7 @@ export class DistributionChannelService {
       throw new InternalServerErrorException(
         translate('An error occurred while creating the distribution channel'),
       );
+
     // return the response
     return {
       message: translate('Distribution channel created successfully'),
@@ -52,17 +60,18 @@ export class DistributionChannelService {
     };
   }
 
-  async findAll() {
-    const distributionChannels =
-      await this.prismaService.distributionChannel.findMany({
-        include: {
-          entity: true,
-          NodeType: true,
-        },
-        orderBy: {
-          id: 'desc',
-        },
-      });
+  async findAll(paginationDto: PaginationDto) {
+    const options = {
+      include: {
+        entity: true,
+        NodeType: true,
+      }
+    };
+    const distributionChannels = await this.sharedService.paginate(
+      this.prismaService.distributionChannel,
+      paginationDto,
+      options,
+    );
     // return the response
     return {
       message: translate('List of distribution channels'),
@@ -280,7 +289,7 @@ export class DistributionChannelService {
     const { entityId, label, description } = updateDistributionChannelDto;
 
     // check if the distribution channel exists
-    const distributionChannel =
+    let distributionChannel =
       await this.prismaService.distributionChannel.findUnique({
         where: { id },
         include: {
@@ -321,6 +330,14 @@ export class DistributionChannelService {
       );
 
     // return the response
+    distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id },
+        include: {
+          entity: true,
+          NodeType: true,
+        },
+      });
     return {
       message: translate('Distribution channel updated successfully'),
       data: distributionChannel,
@@ -328,12 +345,15 @@ export class DistributionChannelService {
   }
 
   async changeStatus(id: number) {
-    const distributionChannel =
+    // retrieve the distribution channel
+    let distributionChannel =
       await this.prismaService.distributionChannel.findUnique({
         where: { id },
       });
     if (!distributionChannel)
       throw new NotFoundException(translate('Distribution channel not found'));
+
+    // update the distribution channel
     const updatedDistributionChannel =
       await this.prismaService.distributionChannel.update({
         where: { id },
@@ -343,10 +363,19 @@ export class DistributionChannelService {
       throw new InternalServerErrorException(
         translate('An error occurred while updating the distribution channel'),
       );
+
     // return the response
+    distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id },
+        include: {
+          entity: true,
+          NodeType: true,
+        },
+      });
     return {
       message: translate('Distribution channel status updated successfully'),
-      data: updatedDistributionChannel,
+      data: distributionChannel,
     };
   }
 }

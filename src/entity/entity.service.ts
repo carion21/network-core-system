@@ -8,10 +8,15 @@ import { CreateEntityDto } from './dto/create-entity.dto';
 import { UpdateEntityDto } from './dto/update-entity.dto';
 import { genEntityCode, getSlug, translate } from 'utilities/functions';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SharedService } from 'src/shared/shared.service';
 
 @Injectable()
 export class EntityService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly sharedService: SharedService,
+  ) {}
 
   async create(createEntityDto: CreateEntityDto) {
     const { label, description } = createEntityDto;
@@ -40,15 +45,19 @@ export class EntityService {
     };
   }
 
-  async findAll() {
-    const entities = await this.prismaService.entity.findMany({
+  async findAll(paginationDto: PaginationDto) {
+    const options = {
       include: {
         DistributionChannel: true,
-      },
-      orderBy: {
-        id: 'desc',
-      },
-    });
+      }
+    };
+    // const entities = await this.prismaService.entity.findMany();
+    const entities = await this.sharedService.paginate(
+      this.prismaService.entity,
+      paginationDto,
+      options,
+    );
+
     // return the response
     return {
       message: translate('Entities retrieved successfully'),
@@ -96,8 +105,7 @@ export class EntityService {
         },
       },
     });
-    if (exists)
-      throw new ConflictException(translate('Slug already exists'));
+    if (exists) throw new ConflictException(translate('Slug already exists'));
 
     // update the entity
     const updatedEntity = await this.prismaService.entity.update({

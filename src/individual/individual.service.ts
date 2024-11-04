@@ -14,6 +14,7 @@ import {
   translate,
 } from 'utilities/functions';
 import { Consts } from 'utilities/constants';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @Injectable()
 export class IndividualService {
@@ -136,7 +137,7 @@ export class IndividualService {
     };
   }
 
-  async findAll() {
+  async findAll(paginationDto: PaginationDto) {
     const individuals = await this.prismaService.individual.findMany({
       where: { isDeleted: false },
       include: {

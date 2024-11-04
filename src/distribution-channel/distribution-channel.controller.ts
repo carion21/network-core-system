@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { DistributionChannelService } from './distribution-channel.service';
 import { CreateDistributionChannelDto } from './dto/create-distribution-channel.dto';
 import { UpdateDistributionChannelDto } from './dto/update-distribution-channel.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @ApiTags('Gestion des canaux de distribution')
 @Controller('distribution-channel')
@@ -15,8 +16,8 @@ export class DistributionChannelController {
   }
 
   @Get()
-  findAll() {
-    return this.distributionChannelService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.distributionChannelService.findAll(paginationDto);
   }
 
   @Get('generate-interface-contract/:id')

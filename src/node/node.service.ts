@@ -10,10 +10,15 @@ import { UpdateNodeDto } from './dto/update-node.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { genNodeCode, getSlug, translate } from 'utilities/functions';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SharedService } from 'src/shared/shared.service';
 
 @Injectable()
 export class NodeService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly sharedSevice: SharedService,
+  ) {}
 
   async create(createNodeDto: CreateNodeDto) {
     const { nodeTypeId, label, description, nodeParentId } = createNodeDto;
@@ -130,8 +135,8 @@ export class NodeService {
     };
   }
 
-  async findAll() {
-    const nodes = await this.prismaService.node.findMany({
+  async findAll(paginationDto: PaginationDto) {
+    const options = {
       include: {
         nodeType: true,
         Individual: {
@@ -146,7 +151,12 @@ export class NodeService {
       orderBy: {
         id: 'desc',
       },
-    });
+    };
+    const nodes = await this.sharedSevice.paginate(
+      this.prismaService.node,
+      paginationDto,
+      options,
+    );
     // return the response
     return {
       message: translate('Nodes retrieved successfully'),

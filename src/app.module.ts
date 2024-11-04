@@ -14,6 +14,7 @@ import { SeedModule } from './seed/seed.module';
 import { SysUserModule } from './sys-user/sys-user.module';
 import { AuthModule } from './auth/auth.module';
 import { JobModule } from './job/job.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { JobModule } from './job/job.module';
     DataFieldModule,
     IndividualModule,
     JobModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

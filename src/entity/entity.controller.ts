@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { EntityService } from './entity.service';
 import { CreateEntityDto } from './dto/create-entity.dto';
 import { UpdateEntityDto } from './dto/update-entity.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @ApiTags('Gestion des entités')
 @Controller('entity')
@@ -15,8 +16,8 @@ export class EntityController {
   }
 
   @Get()
-  findAll() {
-    return this.entityService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.entityService.findAll(paginationDto);
   }
 
   @Get(':id')

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { NodeService } from './node.service';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @ApiTags('Gestion des noeuds')
 @Controller('node')
@@ -16,8 +17,8 @@ export class NodeController {
   }
 
   @Get()
-  findAll() {
-    return this.nodeService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.nodeService.findAll(paginationDto);
   }
 
   @Get('tree/:id')

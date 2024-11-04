@@ -16,10 +16,15 @@ import {
 } from 'utilities/functions';
 import { Response } from 'express';
 import { Consts } from 'utilities/constants';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SharedService } from 'src/shared/shared.service';
 
 @Injectable()
 export class NodeTypeService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly sharedService: SharedService,
+  ) {}
 
   async create(createNodeTypeDto: CreateNodeTypeDto) {
     const { distributionChannelId, label, description, nodeTypeParentId } =
@@ -71,8 +76,8 @@ export class NodeTypeService {
     };
   }
 
-  async findAll() {
-    const nodeTypes = await this.prismaService.nodeType.findMany({
+  async findAll(paginationDto: PaginationDto) {
+    const options = {
       where: { isDeleted: false },
       include: {
         distributionChannel: true,
@@ -95,7 +100,12 @@ export class NodeTypeService {
       orderBy: {
         id: 'desc',
       },
-    });
+    };
+    const nodeTypes = await this.sharedService.paginate(
+      this.prismaService.nodeType,
+      paginationDto,
+      options,
+    );
     // return the response
     return {
       message: translate('Node types retrieved successfully'),
@@ -288,11 +298,13 @@ export class NodeTypeService {
   }
 
   async changeStatus(id: number) {
-    const nodeType = await this.prismaService.nodeType.findUnique({
+    // retrieve the node type
+    let nodeType = await this.prismaService.nodeType.findUnique({
       where: { id: id, isDeleted: false },
     });
     if (!nodeType)
       throw new NotFoundException(translate('Node type does not exist'));
+
     // update the node type
     const updatedNodeType = await this.prismaService.nodeType.update({
       where: { id },
@@ -304,9 +316,30 @@ export class NodeTypeService {
       );
 
     // return the response
+    nodeType = await this.prismaService.nodeType.findUnique({
+      where: { id: id, isDeleted: false },
+      include: {
+        distributionChannel: true,
+        DataField: {
+          select: {
+            label: true,
+            slug: true,
+            optionnal: true,
+            fillingType: true,
+            dataFieldType: {
+              select: {
+                label: true,
+                value: true,
+              },
+            },
+          },
+        },
+        Node: true,
+      },
+    });
     return {
       message: translate('Node type status updated successfully'),
-      data: updatedNodeType,
+      data: nodeType,
     };
   }
 

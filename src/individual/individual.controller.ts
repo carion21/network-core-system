@@ -15,6 +15,7 @@ import { UpdateIndividualDto } from './dto/update-individual.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @ApiTags('Gestion des individus')
 @Controller('individual')
@@ -54,8 +55,8 @@ export class IndividualController {
   }
 
   @Get()
-  findAll() {
-    return this.individualService.findAll();
+  findAll(paginationDto: PaginationDto) {
+    return this.individualService.findAll(paginationDto);
   }
 
   @Get(':id')

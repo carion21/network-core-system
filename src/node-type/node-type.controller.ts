@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query } from '@nestjs/common';
 import { NodeTypeService } from './node-type.service';
 import { CreateNodeTypeDto } from './dto/create-node-type.dto';
 import { UpdateNodeTypeDto } from './dto/update-node-type.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { PaginationDto } from 'src/shared/dto/pagination.dto';
 
 @ApiTags('Gestion des types de noeuds')
 @Controller('node-type')
@@ -16,8 +17,8 @@ export class NodeTypeController {
   }
 
   @Get()
-  findAll() {
-    return this.nodeTypeService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.nodeTypeService.findAll(paginationDto);
   }
 
   //generate model excel
