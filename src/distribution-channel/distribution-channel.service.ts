@@ -60,6 +60,32 @@ export class DistributionChannelService {
     };
   }
 
+  async findAllByEntity(id: number, paginationDto: PaginationDto) {
+    // check if the entity exists
+    const entity = await this.prismaService.entity.findUnique({
+      where: { id },
+    });
+    if (!entity) throw new NotFoundException(translate('Entity does not exist'));
+
+    const options = {
+      include: {
+        entity: true,
+        NodeType: true,
+      },
+    };
+    const distributionChannels = await this.sharedService.paginate(
+      this.prismaService.distributionChannel,
+      paginationDto,
+      options,
+    );
+
+    // return the response
+    return {
+      message: translate('List of distribution channels'),
+      data: distributionChannels,
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const options = {
       include: {

@@ -15,6 +15,11 @@ export class DistributionChannelController {
     return this.distributionChannelService.create(createDistributionChannelDto);
   }
 
+  @Get('by-entity/:entityId')
+  findAllByEntity(@Param('entityId') entityId: string, @Query() paginationDto: PaginationDto) {
+    return this.distributionChannelService.findAllByEntity(+entityId, paginationDto);
+  }
+
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.distributionChannelService.findAll(paginationDto);
