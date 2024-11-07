@@ -273,7 +273,7 @@ export class DataFieldService {
     });
     return {
       message: translate('Data field updated successfully'),
-      data: updatedDataField,
+      data: dataField,
     };
   }
 
@@ -307,7 +307,7 @@ export class DataFieldService {
     });
     return {
       message: translate('Data field status updated successfully'),
-      data: updatedDataField,
+      data: dataField,
     };
   }
 
