@@ -5,11 +5,17 @@ import { UpdateNodeTypeDto } from './dto/update-node-type.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SearchNodeTypeDto } from './dto/search-node-type.dto';
 
 @ApiTags('Gestion des types de noeuds')
 @Controller('node-type')
 export class NodeTypeController {
   constructor(private readonly nodeTypeService: NodeTypeService) {}
+
+  @Post('search')
+  search(@Body() searchNodeTypeDto: SearchNodeTypeDto) {
+    return this.nodeTypeService.search(searchNodeTypeDto);
+  }
 
   @Post()
   create(@Body() createNodeTypeDto: CreateNodeTypeDto) {

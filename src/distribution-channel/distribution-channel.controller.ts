@@ -4,11 +4,17 @@ import { CreateDistributionChannelDto } from './dto/create-distribution-channel.
 import { UpdateDistributionChannelDto } from './dto/update-distribution-channel.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SearchDistributionChannelDto } from './dto/search-distribution-channel.dto';
 
 @ApiTags('Gestion des canaux de distribution')
 @Controller('distribution-channel')
 export class DistributionChannelController {
   constructor(private readonly distributionChannelService: DistributionChannelService) {}
+
+  @Post('search')
+  search(@Body() searchDistributionChannelDto: SearchDistributionChannelDto) {
+    return this.distributionChannelService.search(searchDistributionChannelDto);
+  }
 
   @Post()
   create(@Body() createDistributionChannelDto: CreateDistributionChannelDto) {

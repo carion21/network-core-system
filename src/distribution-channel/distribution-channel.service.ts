@@ -14,6 +14,7 @@ import {
 } from 'utilities/functions';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
+import { SearchDistributionChannelDto } from './dto/search-distribution-channel.dto';
 
 @Injectable()
 export class DistributionChannelService {
@@ -60,12 +61,60 @@ export class DistributionChannelService {
     };
   }
 
+  async search(searchDistributionChannelDto: SearchDistributionChannelDto) {
+    const { content } = searchDistributionChannelDto;
+
+    // search for distribution channels
+    const distributionChannels = await this.prismaService.distributionChannel.findMany({
+      where: {
+        OR: [
+          {
+            code: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            label: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: content,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: {
+        entity: true,
+        NodeType: true,
+      },
+      orderBy: {
+        _relevance: {
+          fields: ['code', 'label'],
+          search: content,
+          sort: 'desc',
+        },
+      },
+    });
+
+    // return the response
+    return {
+      message: translate('Distribution channels retrieved successfully'),
+      data: distributionChannels,
+    };
+  }
+
   async findAllByEntity(id: number, paginationDto: PaginationDto) {
     // check if the entity exists
     const entity = await this.prismaService.entity.findUnique({
       where: { id },
     });
-    if (!entity) throw new NotFoundException(translate('Entity does not exist'));
+    if (!entity)
+      throw new NotFoundException(translate('Entity does not exist'));
 
     const options = {
       include: {
@@ -91,7 +140,7 @@ export class DistributionChannelService {
       include: {
         entity: true,
         NodeType: true,
-      }
+      },
     };
     const distributionChannels = await this.sharedService.paginate(
       this.prismaService.distributionChannel,

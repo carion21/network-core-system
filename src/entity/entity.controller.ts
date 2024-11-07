@@ -4,11 +4,17 @@ import { CreateEntityDto } from './dto/create-entity.dto';
 import { UpdateEntityDto } from './dto/update-entity.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { SearchEntityDto } from './dto/search-entity.dto';
 
 @ApiTags('Gestion des entités')
 @Controller('entity')
 export class EntityController {
   constructor(private readonly entityService: EntityService) {}
+
+  @Post('search')
+  search(@Body() searchEntityDto: SearchEntityDto) {
+    return this.entityService.search(searchEntityDto);
+  }
 
   @Post()
   create(@Body() createEntityDto: CreateEntityDto) {

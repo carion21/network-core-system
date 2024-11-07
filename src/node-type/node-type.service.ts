@@ -18,6 +18,7 @@ import { Response } from 'express';
 import { Consts } from 'utilities/constants';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
+import { SearchNodeTypeDto } from './dto/search-node-type.dto';
 
 @Injectable()
 export class NodeTypeService {
@@ -73,6 +74,66 @@ export class NodeTypeService {
     return {
       message: translate('Node type created successfully'),
       data: nodeType,
+    };
+  }
+
+  async search(searchNodeTypeDto: SearchNodeTypeDto) {
+    const { content } = searchNodeTypeDto;
+
+    // search for node types
+    const nodeTypes = await this.prismaService.nodeType.findMany({
+      where: {
+        OR: [
+          {
+            code: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            label: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: content,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: {
+        DataField: {
+          select: {
+            label: true,
+            slug: true,
+            optionnal: true,
+            fillingType: true,
+            dataFieldType: {
+              select: {
+                label: true,
+                value: true,
+              },
+            },
+          },
+        },
+        Node: true,
+      },
+      orderBy: {
+        _relevance: {
+          fields: ['code', 'label'],
+          search: content,
+          sort: 'desc',
+        },
+      },
+    });
+
+    // return the response
+    return {
+      message: translate('Node types retrieved successfully'),
+      data: nodeTypes,
     };
   }
 

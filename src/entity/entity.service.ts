@@ -10,6 +10,7 @@ import { genEntityCode, getSlug, translate } from 'utilities/functions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
+import { SearchEntityDto } from './dto/search-entity.dto';
 
 @Injectable()
 export class EntityService {
@@ -45,11 +46,57 @@ export class EntityService {
     };
   }
 
+  async search(searchEntityDto: SearchEntityDto) {
+    const { content } = searchEntityDto;
+
+    // search for entities
+    const entities = await this.prismaService.entity.findMany({
+      where: {
+        OR: [
+          {
+            code: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            label: {
+              search: content,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: content,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: {
+        DistributionChannel: true,
+      },
+      orderBy: {
+        _relevance: {
+          fields: ['code', 'label'],
+          search: content,
+          sort: 'desc',
+        },
+      },
+    });
+
+    // return the response
+    return {
+      message: translate('Entities retrieved successfully'),
+      data: entities,
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const options = {
       include: {
         DistributionChannel: true,
-      }
+      },
     };
     // const entities = await this.prismaService.entity.findMany();
     const entities = await this.sharedService.paginate(
