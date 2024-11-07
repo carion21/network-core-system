@@ -76,6 +76,52 @@ export class NodeTypeService {
     };
   }
 
+  async findAllByDistributionChannel(id: number, paginationDto: PaginationDto) {
+    // check if the distribution channel exists
+    // check if the distribution channel exists
+    const distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id },
+      });
+    if (!distributionChannel)
+      throw new NotFoundException(
+        translate('Distribution channel does not exist'),
+      );
+
+    // retrieve the node types
+    const options = {
+      where: { distributionChannelId: id, isDeleted: false },
+      include: {
+        DataField: {
+          select: {
+            label: true,
+            slug: true,
+            optionnal: true,
+            fillingType: true,
+            dataFieldType: {
+              select: {
+                label: true,
+                value: true,
+              },
+            },
+          },
+        },
+        Node: true,
+      },
+    };
+    const nodeTypes = await this.sharedService.paginate(
+      this.prismaService.nodeType,
+      paginationDto,
+      options,
+    );
+
+    // return the response
+    return {
+      message: translate('Node types retrieved successfully'),
+      data: nodeTypes,
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const options = {
       where: { isDeleted: false },

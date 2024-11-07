@@ -16,6 +16,11 @@ export class NodeTypeController {
     return this.nodeTypeService.create(createNodeTypeDto);
   }
 
+  @Get('by-distribution-channel/:distributionChannelId')
+  findAllByDistributionChannel(@Param('distributionChannelId') distributionChannelId: string, @Query() paginationDto: PaginationDto) {
+    return this.nodeTypeService.findAllByDistributionChannel(+distributionChannelId, paginationDto);
+  }
+
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.nodeTypeService.findAll(paginationDto);

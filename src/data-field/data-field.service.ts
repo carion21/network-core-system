@@ -177,7 +177,7 @@ export class DataFieldService {
 
   async findOne(id: number) {
     // retrieve the data field
-    const dataField = this.prismaService.dataField.findUnique({
+    const dataField = await this.prismaService.dataField.findUnique({
       where: {
         id: id,
         isDeleted: false,
