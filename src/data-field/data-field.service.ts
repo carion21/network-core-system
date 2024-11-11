@@ -32,6 +32,7 @@ export class DataFieldService {
       fillingType,
       defaultValue,
       exampleValue,
+      selectValues,
     } = createDataFieldDto;
     // check if the node type exists
     const nodeType = await this.prismaService.nodeType.findUnique({
@@ -39,12 +40,14 @@ export class DataFieldService {
     });
     if (!nodeType)
       throw new NotFoundException(translate('Node type does not exist'));
+
     // check if the data field type exists
     const dataFieldType = await this.prismaService.dataFieldType.findUnique({
       where: { id: dataFieldTypeId },
     });
     if (!dataFieldType)
       throw new NotFoundException(translate('Data field type does not exist'));
+
     // check if the slug already exists
     const slug = getSlug(label);
     const exists = await this.prismaService.dataField.findFirst({
@@ -78,6 +81,7 @@ export class DataFieldService {
         fillingType,
         defaultValue,
         exampleValue,
+        selectValues,
         slug,
       },
     });
@@ -85,6 +89,15 @@ export class DataFieldService {
       throw new InternalServerErrorException(
         translate('Data field not created'),
       );
+
+    if (dataFieldType.value === 'select') {
+      await this.prismaService.selectValue.createMany({
+        data: selectValues.split(';').map((value) => ({
+          dataFieldId: dataField.id,
+          value,
+        })),
+      });
+    }
 
     // return the response
     dataField = await this.prismaService.dataField.findUnique({
@@ -161,6 +174,7 @@ export class DataFieldService {
       include: {
         nodeType: true,
         dataFieldType: true,
+        SelectValue: true,
       },
     };
     const dataFields = await this.sharedService.paginate(
@@ -185,6 +199,7 @@ export class DataFieldService {
       include: {
         nodeType: true,
         dataFieldType: true,
+        SelectValue: true,
       },
     });
 
@@ -269,6 +284,7 @@ export class DataFieldService {
       include: {
         nodeType: true,
         dataFieldType: true,
+        SelectValue: true,
       },
     });
     return {

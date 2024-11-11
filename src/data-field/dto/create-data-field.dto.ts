@@ -33,4 +33,7 @@ export class CreateDataFieldDto {
 
     @IsString()
     readonly exampleValue: string;
+
+    @IsString()
+    readonly selectValues: string;
 }

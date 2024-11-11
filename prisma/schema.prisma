@@ -143,6 +143,7 @@ model DataField {
   fillingType     String?       @default("mixed") @db.VarChar(255)
   defaultValue    String?       @db.Text
   exampleValue    String?       @db.Text
+  selectValues    String?       @db.Text
   nodeTypeId      Int
   dataFieldTypeId Int
   createdAt       DateTime      @default(now())
@@ -151,14 +152,17 @@ model DataField {
   nodeType        NodeType      @relation(fields: [nodeTypeId], references: [id])
   dataFieldType   DataFieldType @relation(fields: [dataFieldTypeId], references: [id])
   DataRow         DataRow[]
+  SelectValue     SelectValue[]
 }
 
 model SelectValue {
-  id        Int      @id @default(autoincrement())
-  value     String   @db.VarChar(255)
-  status    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int       @id @default(autoincrement())
+  value       String    @db.VarChar(255)
+  status      Boolean   @default(true)
+  dataFieldId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  dataField   DataField @relation(fields: [dataFieldId], references: [id])
 }
 
 model DataRow {
