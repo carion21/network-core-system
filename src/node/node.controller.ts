@@ -5,11 +5,17 @@ import { UpdateNodeDto } from './dto/update-node.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { CreateManyNodeDto } from './dto/create-many-node.dto';
 
 @ApiTags('Gestion des noeuds')
 @Controller('node')
 export class NodeController {
   constructor(private readonly nodeService: NodeService) {}
+
+  @Post('many')
+  createMany(@Body() createManyNodeDto: CreateManyNodeDto) {
+    return this.nodeService.createMany(createManyNodeDto);
+  }
 
   @Post()
   create(@Body() createNodeDto: CreateNodeDto) {

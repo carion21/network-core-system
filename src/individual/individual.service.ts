@@ -15,6 +15,7 @@ import {
 } from 'utilities/functions';
 import { Consts } from 'utilities/constants';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { CreateManyIndividualDto } from './dto/create-many-individual.dto';
 
 @Injectable()
 export class IndividualService {
@@ -137,6 +138,30 @@ export class IndividualService {
     };
   }
 
+  async createMany(
+    createManyIndividualDto: CreateManyIndividualDto,
+    userAuthenticated: any,
+    isAnSubstitute: boolean,
+  ) {
+    const { individuals } = createManyIndividualDto;
+
+    const createdIndividuals = [];
+    for (const individual of individuals) {
+      let rIndividual = await this.create(
+        individual,
+        userAuthenticated,
+        isAnSubstitute,
+      );
+      createdIndividuals.push(rIndividual);
+    }
+
+    // return the response
+    return {
+      message: translate('Individuals created successfully'),
+      data: createdIndividuals,
+    };
+  }
+
   async findAll(paginationDto: PaginationDto) {
     const individuals = await this.prismaService.individual.findMany({
       where: { isDeleted: false },
@@ -168,6 +193,7 @@ export class IndividualService {
                 id: true,
                 label: true,
                 slug: true,
+                dataFieldType: true,
               },
             },
           },
@@ -177,8 +203,15 @@ export class IndividualService {
     // aasign the data to the individuals
     individuals.forEach((individual) => {
       let data = {};
-      individual.DataRow.forEach((row) => {
-        data[row.dataField.slug] = row.value;
+      individual.DataRow.forEach(async (row) => {
+        if (row.dataField.dataFieldType.value === 'select') {
+          const selectValue = await this.prismaService.selectValue.findUnique({
+            where: { id: parseInt(row.value) },
+          });
+          data[row.dataField.slug] = selectValue.value;
+        } else {
+          data[row.dataField.slug] = row.value;
+        }
       });
       // get data field where not exists in data
       const dataFields = individual.node.nodeType.DataField;

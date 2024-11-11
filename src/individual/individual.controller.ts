@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { CreateManyIndividualDto } from './dto/create-many-individual.dto';
 
 @ApiTags('Gestion des individus')
 @Controller('individual')
@@ -35,6 +36,22 @@ export class IndividualController {
       createIndividualDto,
       userAuthenticated,
       true,
+    );
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  createMany(
+    @Body() createManyIndividualDto: CreateManyIndividualDto,
+    @Req() request: Request,
+  ) {
+    let userAuthenticated = request['user'];
+
+    return this.individualService.createMany(
+      createManyIndividualDto,
+      userAuthenticated,
+      false,
     );
   }
 

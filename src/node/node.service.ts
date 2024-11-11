@@ -12,6 +12,7 @@ import { genNodeCode, getSlug, translate } from 'utilities/functions';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
+import { CreateManyNodeDto } from './dto/create-many-node.dto';
 
 @Injectable()
 export class NodeService {
@@ -74,6 +75,22 @@ export class NodeService {
     return {
       message: translate('Node created successfully'),
       data: node,
+    };
+  }
+
+  async createMany(createManyNodeDto: CreateManyNodeDto) {
+    const { nodes } = createManyNodeDto;
+
+    const createdNodes = [];
+    for (const node of nodes) {
+      let rNode = await this.create(node);
+      createdNodes.push(rNode.data);
+    }
+
+    // return the response
+    return {
+      message: translate('Nodes created successfully'),
+      data: createdNodes,
     };
   }
 
