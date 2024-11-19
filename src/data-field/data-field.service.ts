@@ -219,6 +219,7 @@ export class DataFieldService {
       optionnal,
       defaultValue,
       exampleValue,
+      selectValues
     } = updateDataFieldDto;
 
     // retrieve the data field
@@ -226,6 +227,9 @@ export class DataFieldService {
       where: {
         id: id,
         isDeleted: false,
+      },
+      include: {
+        SelectValue: true,
       },
     });
     if (!dataField)
@@ -274,6 +278,34 @@ export class DataFieldService {
         slug,
       },
     });
+
+    // update the select values
+    if (dataFieldType.value === 'select') {
+      // if the select values are empty, delete all the values
+      if (!selectValues) {
+        await this.prismaService.selectValue.deleteMany({
+          where: { dataFieldId: id },
+        });
+      }
+      // if the select values are not empty, update the values
+      // create the new values which do not exist
+      // delete the values which do not exist in the new
+      else {
+        const newSelectValues = selectValues.split(';');
+        const oldSelectValues = dataField.SelectValue.map((value) => value.value);
+        const toDelete = oldSelectValues.filter((value) => !newSelectValues.includes(value));
+        const toCreate = newSelectValues.filter((value) => !oldSelectValues.includes(value));
+        await this.prismaService.selectValue.deleteMany({
+          where: { dataFieldId: id, value: { in: toDelete } },
+        });
+        await this.prismaService.selectValue.createMany({
+          data: toCreate.map((value) => ({
+            dataFieldId: id,
+            value,
+          })),
+        });
+      }
+    }
 
     // return the response
     dataField = await this.prismaService.dataField.findUnique({
