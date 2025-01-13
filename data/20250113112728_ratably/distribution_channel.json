@@ -1,0 +1,68 @@
+{
+    "message": "Distribution channel found",
+    "data": {
+        "id": 6,
+        "code": "DTC011311_2731_9202",
+        "label": "Channel ratably webbing",
+        "value": "channel-ratably-webbing",
+        "description": "Description of Channel ratably webbing",
+        "status": true,
+        "entityId": 6,
+        "createdAt": "2025-01-13T11:27:31.350Z",
+        "updatedAt": "2025-01-13T11:27:31.350Z",
+        "entity": {
+            "id": 6,
+            "code": "ENT011311_2729_4411",
+            "label": "ratably",
+            "value": "ratably",
+            "description": "Description of ratably",
+            "status": true,
+            "createdAt": "2025-01-13T11:27:29.421Z",
+            "updatedAt": "2025-01-13T11:27:29.421Z"
+        },
+        "NodeType": [
+            {
+                "id": 13,
+                "code": "NTY011311_2734_1390",
+                "label": "chuffest",
+                "value": "chuffest",
+                "description": "Description of chuffest",
+                "status": true,
+                "isDeleted": false,
+                "distributionChannelId": 6,
+                "nodeTypeParentId": 0,
+                "createdAt": "2025-01-13T11:27:34.039Z",
+                "updatedAt": "2025-01-13T11:27:34.039Z",
+                "deletedAt": null
+            },
+            {
+                "id": 14,
+                "code": "NTY011311_2735_6211",
+                "label": "didus",
+                "value": "didus",
+                "description": "Description of didus",
+                "status": true,
+                "isDeleted": false,
+                "distributionChannelId": 6,
+                "nodeTypeParentId": 0,
+                "createdAt": "2025-01-13T11:27:35.237Z",
+                "updatedAt": "2025-01-13T11:27:35.237Z",
+                "deletedAt": null
+            },
+            {
+                "id": 15,
+                "code": "NTY011311_2736_9842",
+                "label": "lonely",
+                "value": "lonely",
+                "description": "Description of lonely",
+                "status": true,
+                "isDeleted": false,
+                "distributionChannelId": 6,
+                "nodeTypeParentId": 0,
+                "createdAt": "2025-01-13T11:27:36.214Z",
+                "updatedAt": "2025-01-13T11:27:36.214Z",
+                "deletedAt": null
+            }
+        ]
+    }
+}

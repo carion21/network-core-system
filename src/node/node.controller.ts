@@ -6,6 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { CreateManyNodeDto } from './dto/create-many-node.dto';
+import { NodePaginationDto } from 'src/shared/dto/node-pagination.dto';
 
 @ApiTags('Gestion des noeuds')
 @Controller('node')
@@ -30,6 +31,11 @@ export class NodeController {
   @Get('tree/:id')
   getTree(@Param('id') id: string) {
     return this.nodeService.getTree(+id);
+  }
+
+  @Get('show-children/:id')
+  showChildren(@Param('id') id: string, @Query() nodePaginationDto: NodePaginationDto) {
+    return this.nodeService.showChildren(+id, nodePaginationDto);
   }
 
   @Get(':id')

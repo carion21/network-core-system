@@ -13,7 +13,7 @@ import {
   isUUID,
 } from 'class-validator';
 import { Workbook } from 'exceljs';
-import { generateUsername } from "unique-username-generator";
+import { generateUsername } from 'unique-username-generator';
 
 const getSlug = (text: string) => {
   return slug(text, {
@@ -24,7 +24,7 @@ const getSlug = (text: string) => {
 
 const generateFriendlyUsername = () => {
   return generateUsername('-');
-}
+};
 
 const translate = (text: string) => {
   return text;
@@ -112,7 +112,7 @@ const control_data = (inputs: object) => {
     const presentFields = allFields.filter((field: string) =>
       dataKeys.includes(field),
     );
-    
+
     // const unknownFields = dataKeys.filter((field: string) => !allFields.includes(field));
 
     // check if the field type is correct
@@ -255,7 +255,24 @@ const generateWorksheetBuffer = (columns: string[]) => {
     return { header: column, key: column, width: 32 };
   });
   return workbook.xlsx.writeBuffer();
-}
+};
+
+const formatNodeData = (node: object) => {
+  let data = {};
+  for (const individual of node['Individual']) {
+    console.log('individual', individual);
+    
+    const dataRows = individual['DataRow'];
+    for (const dataRow of dataRows) {
+      data[dataRow['dataField']['slug']] = dataRow['value'];
+    }
+  }
+  return {
+    expanded: true,
+    type: 'person',
+    data: data,
+  };
+};
 
 export {
   getSlug,
@@ -271,5 +288,6 @@ export {
   genDataFieldTypeCode,
   genDataFieldCode,
   control_data,
-  generateWorksheetBuffer
+  generateWorksheetBuffer,
+  formatNodeData,
 };

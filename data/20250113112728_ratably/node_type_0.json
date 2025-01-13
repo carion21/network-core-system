@@ -1,0 +1,86 @@
+{
+    "message": "Node type retrieved successfully",
+    "data": {
+        "id": 13,
+        "code": "NTY011311_2734_1390",
+        "label": "chuffest",
+        "value": "chuffest",
+        "description": "Description of chuffest",
+        "status": true,
+        "isDeleted": false,
+        "distributionChannelId": 6,
+        "nodeTypeParentId": 0,
+        "createdAt": "2025-01-13T11:27:34.039Z",
+        "updatedAt": "2025-01-13T11:27:34.039Z",
+        "deletedAt": null,
+        "distributionChannel": {
+            "id": 6,
+            "code": "DTC011311_2731_9202",
+            "label": "Channel ratably webbing",
+            "value": "channel-ratably-webbing",
+            "description": "Description of Channel ratably webbing",
+            "status": true,
+            "entityId": 6,
+            "createdAt": "2025-01-13T11:27:31.350Z",
+            "updatedAt": "2025-01-13T11:27:31.350Z"
+        },
+        "DataField": [
+            {
+                "label": "corseleted",
+                "slug": "corseleted",
+                "optionnal": true,
+                "fillingType": "mixed",
+                "dataFieldType": {
+                    "label": "Integer",
+                    "value": "integer"
+                }
+            },
+            {
+                "label": "heathenship",
+                "slug": "heathenship",
+                "optionnal": true,
+                "fillingType": "manual",
+                "dataFieldType": {
+                    "label": "Float",
+                    "value": "float"
+                }
+            },
+            {
+                "label": "drillability",
+                "slug": "drillability",
+                "optionnal": false,
+                "fillingType": "mixed",
+                "dataFieldType": {
+                    "label": "Number",
+                    "value": "number"
+                }
+            }
+        ],
+        "Node": [
+            {
+                "id": 39,
+                "code": "NDE011311_2811_2185",
+                "label": "Node chuffest supraintellectual",
+                "value": "node-chuffest-supraintellectual",
+                "description": "Description of Node chuffest supraintellectual",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 13,
+                "createdAt": "2025-01-13T11:28:11.253Z",
+                "updatedAt": "2025-01-13T11:28:11.253Z"
+            },
+            {
+                "id": 40,
+                "code": "NDE011311_2812_1038",
+                "label": "Node chuffest dishonoring",
+                "value": "node-chuffest-dishonoring",
+                "description": "Description of Node chuffest dishonoring",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 13,
+                "createdAt": "2025-01-13T11:28:12.526Z",
+                "updatedAt": "2025-01-13T11:28:12.526Z"
+            }
+        ]
+    }
+}

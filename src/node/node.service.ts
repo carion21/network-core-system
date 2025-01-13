@@ -8,11 +8,12 @@ import {
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { genNodeCode, getSlug, translate } from 'utilities/functions';
+import { formatNodeData, genNodeCode, getSlug, translate } from 'utilities/functions';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
 import { CreateManyNodeDto } from './dto/create-many-node.dto';
+import { NodePaginationDto } from 'src/shared/dto/node-pagination.dto';
 
 @Injectable()
 export class NodeService {
@@ -135,7 +136,7 @@ export class NodeService {
                 status: true,
               },
               orderBy: {
-                id: 'desc',
+                id: 'asc',
               },
             },
           },
@@ -219,6 +220,129 @@ export class NodeService {
     return {
       message: translate('Node retrieved successfully'),
       data: node,
+    };
+  }
+
+  async showChildren(id: number, nodePaginationDto: NodePaginationDto) {
+    const node = await this.prismaService.node.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        nodeType: {
+          select: {
+            id: true,
+            label: true,
+            DataField: {
+              select: {
+                id: true,
+                label: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        Individual: {
+          where: {
+            status: true,
+          },
+          select: {
+            id: true,
+            code: true,
+            status: true,
+            DataRow: {
+              select: {
+                id: true,
+                value: true,
+                dataField: {
+                  select: {
+                    id: true,
+                    label: true,
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+          take: 1,
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
+    });
+    if (!node) throw new NotFoundException(translate('Node not found'));
+
+    const options = {
+      where: {
+        parentNodeId: id,
+        isActive: true,
+      },
+      select: {
+        childNodeId: true,
+      },
+    };
+
+    const nodeConnections = await this.sharedSevice.paginate(
+      this.prismaService.nodeConnection,
+      nodePaginationDto as PaginationDto,
+      options,
+    );
+
+    const nodes = await this.prismaService.node.findMany({
+      where: { id: { in: nodeConnections.data.map((nc) => nc.childNodeId) } },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        nodeType: {
+          select: {
+            id: true,
+            label: true,
+          },
+        },
+        Individual: {
+          where: {
+            status: true,
+          },
+          select: {
+            id: true,
+            code: true,
+            status: true,
+            DataRow: {
+              select: {
+                id: true,
+                value: true,
+                dataField: {
+                  select: {
+                    id: true,
+                    label: true,
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+          take: 1,
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
+    });
+
+    // prepare the response
+    let data = formatNodeData(node);
+    data['children'] = nodes.map((n) => formatNodeData(n));
+
+    // return the response
+    return {
+      message: translate('Node children retrieved successfully'),
+      data: {
+        data: data,
+        meta: nodeConnections.meta,
+      },
     };
   }
 

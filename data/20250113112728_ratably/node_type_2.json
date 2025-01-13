@@ -1,0 +1,110 @@
+{
+    "message": "Node type retrieved successfully",
+    "data": {
+        "id": 15,
+        "code": "NTY011311_2736_9842",
+        "label": "lonely",
+        "value": "lonely",
+        "description": "Description of lonely",
+        "status": true,
+        "isDeleted": false,
+        "distributionChannelId": 6,
+        "nodeTypeParentId": 0,
+        "createdAt": "2025-01-13T11:27:36.214Z",
+        "updatedAt": "2025-01-13T11:27:36.214Z",
+        "deletedAt": null,
+        "distributionChannel": {
+            "id": 6,
+            "code": "DTC011311_2731_9202",
+            "label": "Channel ratably webbing",
+            "value": "channel-ratably-webbing",
+            "description": "Description of Channel ratably webbing",
+            "status": true,
+            "entityId": 6,
+            "createdAt": "2025-01-13T11:27:31.350Z",
+            "updatedAt": "2025-01-13T11:27:31.350Z"
+        },
+        "DataField": [
+            {
+                "label": "pseudophellandrene",
+                "slug": "pseudophellandrene",
+                "optionnal": false,
+                "fillingType": "manual",
+                "dataFieldType": {
+                    "label": "Simple Text",
+                    "value": "simple-text"
+                }
+            },
+            {
+                "label": "throb",
+                "slug": "throb",
+                "optionnal": false,
+                "fillingType": "mixed",
+                "dataFieldType": {
+                    "label": "Date",
+                    "value": "date"
+                }
+            },
+            {
+                "label": "instable",
+                "slug": "instable",
+                "optionnal": false,
+                "fillingType": "manual",
+                "dataFieldType": {
+                    "label": "Float",
+                    "value": "float"
+                }
+            }
+        ],
+        "Node": [
+            {
+                "id": 44,
+                "code": "NDE011311_2822_4505",
+                "label": "Node lonely similate",
+                "value": "node-lonely-similate",
+                "description": "Description of Node lonely similate",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 15,
+                "createdAt": "2025-01-13T11:28:22.866Z",
+                "updatedAt": "2025-01-13T11:28:22.866Z"
+            },
+            {
+                "id": 45,
+                "code": "NDE011311_2824_7740",
+                "label": "Node lonely macaasim",
+                "value": "node-lonely-macaasim",
+                "description": "Description of Node lonely macaasim",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 15,
+                "createdAt": "2025-01-13T11:28:24.453Z",
+                "updatedAt": "2025-01-13T11:28:24.453Z"
+            },
+            {
+                "id": 46,
+                "code": "NDE011311_2826_9457",
+                "label": "Node lonely clubdom",
+                "value": "node-lonely-clubdom",
+                "description": "Description of Node lonely clubdom",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 15,
+                "createdAt": "2025-01-13T11:28:26.397Z",
+                "updatedAt": "2025-01-13T11:28:26.397Z"
+            },
+            {
+                "id": 47,
+                "code": "NDE011311_2827_7536",
+                "label": "Node lonely pectolite",
+                "value": "node-lonely-pectolite",
+                "description": "Description of Node lonely pectolite",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 15,
+                "createdAt": "2025-01-13T11:28:27.973Z",
+                "updatedAt": "2025-01-13T11:28:27.973Z"
+            }
+        ]
+    }
+}

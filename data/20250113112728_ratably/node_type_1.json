@@ -1,0 +1,98 @@
+{
+    "message": "Node type retrieved successfully",
+    "data": {
+        "id": 14,
+        "code": "NTY011311_2735_6211",
+        "label": "didus",
+        "value": "didus",
+        "description": "Description of didus",
+        "status": true,
+        "isDeleted": false,
+        "distributionChannelId": 6,
+        "nodeTypeParentId": 0,
+        "createdAt": "2025-01-13T11:27:35.237Z",
+        "updatedAt": "2025-01-13T11:27:35.237Z",
+        "deletedAt": null,
+        "distributionChannel": {
+            "id": 6,
+            "code": "DTC011311_2731_9202",
+            "label": "Channel ratably webbing",
+            "value": "channel-ratably-webbing",
+            "description": "Description of Channel ratably webbing",
+            "status": true,
+            "entityId": 6,
+            "createdAt": "2025-01-13T11:27:31.350Z",
+            "updatedAt": "2025-01-13T11:27:31.350Z"
+        },
+        "DataField": [
+            {
+                "label": "whaly",
+                "slug": "whaly",
+                "optionnal": false,
+                "fillingType": "automatic",
+                "dataFieldType": {
+                    "label": "Float",
+                    "value": "float"
+                }
+            },
+            {
+                "label": "postcibal",
+                "slug": "postcibal",
+                "optionnal": false,
+                "fillingType": "manual",
+                "dataFieldType": {
+                    "label": "Long Text",
+                    "value": "long-text"
+                }
+            },
+            {
+                "label": "reverseful",
+                "slug": "reverseful",
+                "optionnal": true,
+                "fillingType": "mixed",
+                "dataFieldType": {
+                    "label": "Date",
+                    "value": "date"
+                }
+            }
+        ],
+        "Node": [
+            {
+                "id": 41,
+                "code": "NDE011311_2815_8684",
+                "label": "Node didus finalities",
+                "value": "node-didus-finalities",
+                "description": "Description of Node didus finalities",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 14,
+                "createdAt": "2025-01-13T11:28:15.860Z",
+                "updatedAt": "2025-01-13T11:28:15.860Z"
+            },
+            {
+                "id": 42,
+                "code": "NDE011311_2818_2651",
+                "label": "Node didus geotonic",
+                "value": "node-didus-geotonic",
+                "description": "Description of Node didus geotonic",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 14,
+                "createdAt": "2025-01-13T11:28:18.133Z",
+                "updatedAt": "2025-01-13T11:28:18.133Z"
+            },
+            {
+                "id": 43,
+                "code": "NDE011311_2819_7772",
+                "label": "Node didus delectation",
+                "value": "node-didus-delectation",
+                "description": "Description of Node didus delectation",
+                "status": true,
+                "isDeleted": false,
+                "nodeTypeId": 14,
+                "createdAt": "2025-01-13T11:28:19.973Z",
+                "updatedAt": "2025-01-13T11:28:19.973Z"
+            }
+        ]
+    }
+}

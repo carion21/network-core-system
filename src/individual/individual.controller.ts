@@ -41,7 +41,7 @@ export class IndividualController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @Post()
+  @Post('many')
   createMany(
     @Body() createManyIndividualDto: CreateManyIndividualDto,
     @Req() request: Request,
