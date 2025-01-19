@@ -117,6 +117,9 @@ export class DistributionChannelService {
       throw new NotFoundException(translate('Entity does not exist'));
 
     const options = {
+      where: {
+        entityId: id,
+      },
       include: {
         entity: true,
         NodeType: true,
