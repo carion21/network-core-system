@@ -51,7 +51,11 @@ export class DataFieldService {
     // check if the slug already exists
     const slug = getSlug(label);
     const exists = await this.prismaService.dataField.findFirst({
-      where: { nodeTypeId, slug },
+      where: {
+        nodeTypeId,
+        slug,
+        isDeleted: false,
+      },
     });
     if (exists)
       throw new ConflictException(
@@ -219,7 +223,7 @@ export class DataFieldService {
       optionnal,
       defaultValue,
       exampleValue,
-      selectValues
+      selectValues,
     } = updateDataFieldDto;
 
     // retrieve the data field
@@ -248,6 +252,7 @@ export class DataFieldService {
       where: {
         nodeTypeId: dataField.nodeTypeId,
         slug,
+        isDeleted: false,
       },
     });
     if (exists && exists.id !== id)
@@ -292,9 +297,15 @@ export class DataFieldService {
       // delete the values which do not exist in the new
       else {
         const newSelectValues = selectValues.split(';');
-        const oldSelectValues = dataField.SelectValue.map((value) => value.value);
-        const toDelete = oldSelectValues.filter((value) => !newSelectValues.includes(value));
-        const toCreate = newSelectValues.filter((value) => !oldSelectValues.includes(value));
+        const oldSelectValues = dataField.SelectValue.map(
+          (value) => value.value,
+        );
+        const toDelete = oldSelectValues.filter(
+          (value) => !newSelectValues.includes(value),
+        );
+        const toCreate = newSelectValues.filter(
+          (value) => !oldSelectValues.includes(value),
+        );
         await this.prismaService.selectValue.deleteMany({
           where: { dataFieldId: id, value: { in: toDelete } },
         });
@@ -372,7 +383,7 @@ export class DataFieldService {
     // update the data field for deletion
     const updatedDataField = await this.prismaService.dataField.update({
       where: { id },
-      data: { isDeleted: true },
+      data: { isDeleted: true, slug: `deleted-${dataField.slug}` },
     });
 
     // return the response

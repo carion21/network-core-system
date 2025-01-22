@@ -52,7 +52,10 @@ export class NodeTypeService {
     // check if the slug already exists
     const value = getSlug(label);
     const exists = await this.prismaService.nodeType.findFirst({
-      where: { value },
+      where: {
+        value,
+        isDeleted: false,
+      },
     });
     if (exists) throw new ConflictException(translate('Slug already exists'));
     // create the node type
@@ -83,6 +86,7 @@ export class NodeTypeService {
     // search for node types
     const nodeTypes = await this.prismaService.nodeType.findMany({
       where: {
+        isDeleted: false,
         OR: [
           {
             code: {
@@ -176,6 +180,16 @@ export class NodeTypeService {
       options,
     );
 
+    // add the node type parent
+    for (let nodeType of nodeTypes.data) {
+      if (nodeType.nodeTypeParentId) {
+        nodeType['nodeTypeParent'] =
+          await this.prismaService.nodeType.findUnique({
+            where: { id: nodeType.nodeTypeParentId },
+          });
+      }
+    }
+
     // return the response
     return {
       message: translate('Node types retrieved successfully'),
@@ -213,6 +227,17 @@ export class NodeTypeService {
       paginationDto,
       options,
     );
+
+    // add the node type parent
+    for (let nodeType of nodeTypes.data) {
+      if (nodeType.nodeTypeParentId) {
+        nodeType['nodeTypeParent'] =
+          await this.prismaService.nodeType.findUnique({
+            where: { id: nodeType.nodeTypeParentId },
+          });
+      }
+    }
+
     // return the response
     return {
       message: translate('Node types retrieved successfully'),
@@ -290,6 +315,16 @@ export class NodeTypeService {
     });
     if (!nodeType)
       throw new NotFoundException(translate('Node type does not exist'));
+
+    // add the node type parent
+    if (nodeType.nodeTypeParentId) {
+      nodeType['nodeTypeParent'] = await this.prismaService.nodeType.findUnique(
+        {
+          where: { id: nodeType.nodeTypeParentId },
+        },
+      );
+    }
+
     // return the response
     return {
       message: translate('Node type retrieved successfully'),
@@ -354,7 +389,10 @@ export class NodeTypeService {
     // check if the slug already exists
     const value = getSlug(label);
     const exists = await this.prismaService.nodeType.findFirst({
-      where: { value },
+      where: {
+        value,
+        isDeleted: false,
+      },
     });
     if (exists && exists.id !== id)
       throw new ConflictException(translate('Slug already exists'));
@@ -474,7 +512,7 @@ export class NodeTypeService {
     // update the node type to be deleted
     const updatedNodeType = await this.prismaService.nodeType.update({
       where: { id },
-      data: { isDeleted: true },
+      data: { isDeleted: true, value: `deleted-${nodeType.value}` },
     });
 
     // return the response
