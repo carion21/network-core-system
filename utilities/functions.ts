@@ -261,13 +261,18 @@ const formatNodeData = (node: object) => {
   let data = {};
   for (const individual of node['Individual']) {
     console.log('individual', individual);
-    
+
     const dataRows = individual['DataRow'];
     for (const dataRow of dataRows) {
       data[dataRow['dataField']['slug']] = dataRow['value'];
     }
   }
   return {
+    id: node['id'],
+    nodeType: {
+      id: node['nodeType']['id'],
+      label: node['nodeType']['label']
+    },
     expanded: true,
     type: 'person',
     data: data,

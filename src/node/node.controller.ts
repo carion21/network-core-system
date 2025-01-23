@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { NodeService } from './node.service';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
@@ -33,8 +42,22 @@ export class NodeController {
     return this.nodeService.getTree(+id);
   }
 
+  @Get('first-children/:distributionChannelId')
+  firstChildren(
+    @Param('distributionChannelId') distributionChannelId: string,
+    @Query() nodePaginationDto: NodePaginationDto,
+  ) {
+    return this.nodeService.firstChildren(
+      +distributionChannelId,
+      nodePaginationDto,
+    );
+  }
+
   @Get('show-children/:id')
-  showChildren(@Param('id') id: string, @Query() nodePaginationDto: NodePaginationDto) {
+  showChildren(
+    @Param('id') id: string,
+    @Query() nodePaginationDto: NodePaginationDto,
+  ) {
     return this.nodeService.showChildren(+id, nodePaginationDto);
   }
 
@@ -49,7 +72,10 @@ export class NodeController {
   }
 
   @Patch('reconnect/:id')
-  reconnect(@Param('id') id: string, @Body() reconnectNodeDto: ReconnectNodeDto) {
+  reconnect(
+    @Param('id') id: string,
+    @Body() reconnectNodeDto: ReconnectNodeDto,
+  ) {
     return this.nodeService.reconnect(+id, reconnectNodeDto);
   }
 

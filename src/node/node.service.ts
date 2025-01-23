@@ -8,7 +8,12 @@ import {
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { formatNodeData, genNodeCode, getSlug, translate } from 'utilities/functions';
+import {
+  formatNodeData,
+  genNodeCode,
+  getSlug,
+  translate,
+} from 'utilities/functions';
 import { ReconnectNodeDto } from './dto/reconnect-node.dto';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { SharedService } from 'src/shared/shared.service';
@@ -220,6 +225,94 @@ export class NodeService {
     return {
       message: translate('Node retrieved successfully'),
       data: node,
+    };
+  }
+
+  async firstChildren(
+    distributionChannelId: number,
+    nodePaginationDto: NodePaginationDto,
+  ) {
+    // check if the distribution channel exists
+    const distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id: distributionChannelId },
+      });
+    if (!distributionChannel)
+      throw new NotFoundException(translate('Distribution channel not found'));
+
+    // get the node types which are not parents
+    const nodeTypes = await this.prismaService.nodeType.findMany({
+      where: {
+        nodeTypeParentId: 0,
+        distributionChannelId,
+      },
+    });
+
+    // get the nodes of the node types
+    const nodeTypeIds = nodeTypes.map((nt) => nt.id);
+    // get the nodes of the node types
+    const options = {
+      where: {
+        nodeTypeId: { in: nodeTypeIds },
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        nodeType: {
+          select: {
+            id: true,
+            label: true,
+          },
+        },
+        Individual: {
+          where: {
+            status: true,
+          },
+          select: {
+            id: true,
+            code: true,
+            status: true,
+            DataRow: {
+              select: {
+                id: true,
+                value: true,
+                dataField: {
+                  select: {
+                    id: true,
+                    label: true,
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+          take: 1,
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
+    };
+
+    const nodes = await this.sharedSevice.paginate(
+      this.prismaService.node,
+      nodePaginationDto as PaginationDto,
+      options,
+    );
+
+    // prepare the response
+    let data = [];
+    data = nodes.data.map((n) => formatNodeData(n));
+
+    // return the response
+    return {
+      message: translate('First children retrieved successfully'),
+      data: {
+        data: data,
+        meta: nodes.meta,
+      },
     };
   }
 
