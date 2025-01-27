@@ -29,41 +29,59 @@ export class NodeService {
 
   async create(createNodeDto: CreateNodeDto) {
     const { nodeTypeId, label, description, nodeParentId } = createNodeDto;
-    // check if the node type exists
+
+    // Vérifier si le type de noeud existe
     const nodeType = await this.prismaService.nodeType.findUnique({
       where: { id: nodeTypeId },
     });
-    if (!nodeType)
+    if (!nodeType) {
       throw new NotFoundException(translate('Node type does not exist'));
-    // check if the node parent exists
+    }
+
+    // Vérifier si le parent du noeud existe (si défini)
     if (nodeParentId) {
       const nodeParent = await this.prismaService.node.findUnique({
         where: { id: nodeParentId },
       });
-      if (!nodeParent)
+      if (!nodeParent) {
         throw new NotFoundException(translate('Node parent does not exist'));
+      }
+      // Si le type de parent est défini, vérifier si le parent est du bon type
+      if (
+        nodeType.nodeTypeParentId &&
+        nodeParent.nodeTypeId !== nodeType.nodeTypeParentId
+      )
+        throw new ForbiddenException(
+          translate('Node parent type is not allowed'),
+        );
     }
-    // check if the slug already exists
+
+    // Vérifier si le slug (valeur générée à partir du label) existe déjà
     const value = getSlug(label);
-    const exists = await this.prismaService.node.findFirst({
+    const existingNode = await this.prismaService.node.findFirst({
       where: { value },
     });
-    if (exists) throw new ConflictException(translate('Slug already exists'));
-    // create the node
+    if (existingNode) {
+      throw new ConflictException(translate('Slug already exists'));
+    }
+
+    // Créer le noeud
     const node = await this.prismaService.node.create({
       data: {
-        code: genNodeCode(),
+        code: genNodeCode(), // Génération du code unique pour le noeud
         nodeTypeId,
         label,
         value,
         description,
       },
     });
-    if (!node)
+    if (!node) {
       throw new InternalServerErrorException(
         translate('Node could not be created'),
       );
+    }
 
+    // Si un parent est défini, créer une connexion parent-enfant
     if (nodeParentId) {
       const nodeConnection = await this.prismaService.nodeConnection.create({
         data: {
@@ -71,13 +89,14 @@ export class NodeService {
           childNodeId: node.id,
         },
       });
-      if (!nodeConnection)
+      if (!nodeConnection) {
         throw new InternalServerErrorException(
           translate('Node connection could not be created'),
         );
+      }
     }
 
-    // return the response
+    // Retourner la réponse avec un message de succès et les détails du noeud
     return {
       message: translate('Node created successfully'),
       data: node,
@@ -444,116 +463,111 @@ export class NodeService {
   async update(id: number, updateNodeDto: UpdateNodeDto) {
     const { nodeTypeId, label, description, nodeParentId } = updateNodeDto;
 
-    // check if the node exists
+    // Vérifier si le noeud existe
     const node = await this.prismaService.node.findUnique({
       where: { id },
       include: {
         nodeType: true,
         Individual: {
-          where: {
-            status: true,
-          },
-          orderBy: {
-            id: 'desc',
-          },
+          where: { status: true },
+          orderBy: { id: 'desc' },
         },
       },
     });
     if (!node) throw new NotFoundException(translate('Node not found'));
 
-    // check if the node type exists
+    // Vérifier si le type de noeud existe
     const nodeType = await this.prismaService.nodeType.findUnique({
       where: { id: nodeTypeId },
     });
-    if (!nodeType)
+    if (!nodeType) {
       throw new NotFoundException(translate('Node type does not exist'));
+    }
 
-    // get the node connection
-    const nodeConnection = await this.prismaService.nodeConnection.findFirst({
-      where: {
-        childNodeId: id,
-        isActive: true,
-      },
-    });
-    if (!nodeConnection)
-      throw new NotFoundException(translate('Node connection not found'));
-
-    // check if the node parent exists
+    // Vérifier si le parent du noeud existe (si défini)
     if (nodeParentId) {
       const nodeParent = await this.prismaService.node.findUnique({
         where: { id: nodeParentId },
       });
-      if (!nodeParent)
+      if (!nodeParent) {
         throw new NotFoundException(translate('Node parent does not exist'));
-      if (nodeParentId === node.id)
+      }
+      if (nodeParentId === node.id) {
         throw new ForbiddenException(
           translate('Node cannot be its own parent'),
         );
+      }
+      // Si le type de parent est défini, vérifier si le parent est du bon type
+      if (
+        nodeType.nodeTypeParentId &&
+        nodeParent.nodeTypeId !== nodeType.nodeTypeParentId
+      )
+        throw new ForbiddenException(
+          translate('Node parent type is not allowed'),
+        );
     }
 
-    // check if the slug already exists
+    // Vérifier si le slug existe déjà
     const value = getSlug(label);
-    const exists = await this.prismaService.node.findFirst({
+    const existingNode = await this.prismaService.node.findFirst({
       where: { value },
     });
-    if (exists && exists.id !== id)
+    if (existingNode && existingNode.id !== id) {
       throw new ConflictException(translate('Slug already exists'));
+    }
 
-    // update the node
+    // Mettre à jour le noeud
     const updatedNode = await this.prismaService.node.update({
       where: { id },
-      data: {
-        nodeTypeId,
-        label,
-        value,
-        description,
-      },
+      data: { nodeTypeId, label, value, description },
     });
-    if (!updatedNode)
+    if (!updatedNode) {
       throw new InternalServerErrorException(
         translate('Node could not be updated'),
       );
+    }
 
+    // Récupérer la connexion actuelle du noeud
     const nodeCurrentConnection =
       await this.prismaService.nodeConnection.findFirst({
-        where: {
-          childNodeId: id,
-          isActive: true,
-        },
+        where: { childNodeId: id, isActive: true },
       });
-    if (!nodeCurrentConnection)
-      throw new NotFoundException(translate('Node connection not found'));
 
-    if (nodeParentId && nodeParentId !== nodeConnection.parentNodeId) {
-      const updatedNodeConnection =
-        await this.prismaService.nodeConnection.update({
-          where: {
-            id: nodeCurrentConnection.id,
-            endAt: Date(),
-          },
-          data: {
-            isActive: false,
-          },
-        });
-      if (!updatedNodeConnection)
-        throw new InternalServerErrorException(
-          translate('Node connection could not be updated'),
-        );
+    // Si un parent est défini et qu'il est différent du parent actuel
+    if (nodeParentId && nodeCurrentConnection?.parentNodeId !== nodeParentId) {
+      if (nodeCurrentConnection) {
+        // Désactiver la connexion actuelle
+        const updatedNodeConnection =
+          await this.prismaService.nodeConnection.update({
+            where: { id: nodeCurrentConnection.id },
+            data: {
+              isActive: false,
+              endAt: new Date(), // Ajout correct de la date
+            },
+          });
+        if (!updatedNodeConnection) {
+          throw new InternalServerErrorException(
+            translate('Node connection could not be updated'),
+          );
+        }
+      }
 
-      // si le nouveau parent est défini: nodeParentId !== null ou de 0
+      // Créer une nouvelle connexion
       const newNodeConnection = await this.prismaService.nodeConnection.create({
         data: {
           parentNodeId: nodeParentId,
           childNodeId: id,
+          isActive: true,
         },
       });
-      if (!newNodeConnection)
+      if (!newNodeConnection) {
         throw new InternalServerErrorException(
           translate('Node connection could not be created'),
         );
+      }
     }
 
-    // return the response
+    // Retourner la réponse
     return {
       message: translate('Node updated successfully'),
       data: updatedNode,
