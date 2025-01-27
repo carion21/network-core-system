@@ -260,8 +260,6 @@ const generateWorksheetBuffer = (columns: string[]) => {
 const formatNodeData = (node: object) => {
   let data = {};
   for (const individual of node['Individual']) {
-    console.log('individual', individual);
-
     const dataRows = individual['DataRow'];
     for (const dataRow of dataRows) {
       data[dataRow['dataField']['slug']] = dataRow['value'];
@@ -269,6 +267,7 @@ const formatNodeData = (node: object) => {
   }
   return {
     id: node['id'],
+    label: node['label'],
     nodeType: {
       id: node['nodeType']['id'],
       label: node['nodeType']['label']
