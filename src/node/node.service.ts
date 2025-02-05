@@ -549,6 +549,7 @@ export class NodeService {
         select: {
           id: true,
           code: true,
+          label: true,
           status: true,
           nodeType: {
             select: {
