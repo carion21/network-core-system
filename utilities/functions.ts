@@ -259,6 +259,7 @@ const generateWorksheetBuffer = (columns: string[]) => {
 
 const formatNodeData = (node: object) => {
   let data = {};
+  let children = node['children'] ?? [];
   for (const individual of node['Individual']) {
     const dataRows = individual['DataRow'];
     for (const dataRow of dataRows) {
@@ -270,11 +271,12 @@ const formatNodeData = (node: object) => {
     label: node['label'],
     nodeType: {
       id: node['nodeType']['id'],
-      label: node['nodeType']['label']
+      label: node['nodeType']['label'],
     },
     expanded: true,
     type: 'person',
     data: data,
+    children: children,
   };
 };
 

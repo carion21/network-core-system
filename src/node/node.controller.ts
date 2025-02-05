@@ -53,6 +53,17 @@ export class NodeController {
     );
   }
 
+  @Get('first-children-with-his-children/:distributionChannelId')
+  firstChildrenWithHisChildren(
+    @Param('distributionChannelId') distributionChannelId: string,
+    @Query() nodePaginationDto: NodePaginationDto,
+  ) {
+    return this.nodeService.firstChildrenWithHisChildren(
+      +distributionChannelId,
+      nodePaginationDto,
+    );
+  }
+
   @Get('show-children/:id')
   showChildren(
     @Param('id') id: string,

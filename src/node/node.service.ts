@@ -409,6 +409,7 @@ export class NodeService {
       select: {
         id: true,
         code: true,
+        label: true,
         status: true,
         nodeType: {
           select: {
@@ -456,6 +457,150 @@ export class NodeService {
       data: {
         data: data,
         meta: nodeConnections.meta,
+      },
+    };
+  }
+
+  async firstChildrenWithHisChildren(
+    distributionChannelId: number,
+    nodePaginationDto: NodePaginationDto,
+  ) {
+    // Vérifier si le canal de distribution existe
+    const distributionChannel =
+      await this.prismaService.distributionChannel.findUnique({
+        where: { id: distributionChannelId },
+      });
+    if (!distributionChannel)
+      throw new NotFoundException(translate('Distribution channel not found'));
+
+    // Récupérer les types de nœuds qui ne sont pas des parents
+    const nodeTypes = await this.prismaService.nodeType.findMany({
+      where: {
+        nodeTypeParentId: 0,
+        distributionChannelId,
+      },
+    });
+
+    // Récupérer les nœuds de ces types
+    const nodeTypeIds = nodeTypes.map((nt) => nt.id);
+    const options = {
+      where: {
+        nodeTypeId: { in: nodeTypeIds },
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        code: true,
+        label: true,
+        status: true,
+        nodeType: {
+          select: {
+            id: true,
+            label: true,
+          },
+        },
+        Individual: {
+          where: {
+            status: true,
+          },
+          select: {
+            id: true,
+            code: true,
+            status: true,
+            DataRow: {
+              select: {
+                id: true,
+                value: true,
+                dataField: {
+                  select: {
+                    id: true,
+                    label: true,
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+          take: 1,
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
+    };
+
+    const nodes = await this.sharedSevice.paginate(
+      this.prismaService.node,
+      nodePaginationDto as PaginationDto,
+      options,
+    );
+
+    // Récupérer les enfants de chaque nœud
+    let node_datas = [];
+    for (const node of nodes.data) {
+      const childrenConnections =
+        await this.prismaService.nodeConnection.findMany({
+          where: { parentNodeId: node.id, isActive: true },
+          select: { childNodeId: true },
+        });
+
+      const children = await this.prismaService.node.findMany({
+        where: { id: { in: childrenConnections.map((nc) => nc.childNodeId) } },
+        select: {
+          id: true,
+          code: true,
+          status: true,
+          nodeType: {
+            select: {
+              id: true,
+              label: true,
+            },
+          },
+          Individual: {
+            where: {
+              status: true,
+            },
+            select: {
+              id: true,
+              code: true,
+              status: true,
+              DataRow: {
+                select: {
+                  id: true,
+                  value: true,
+                  dataField: {
+                    select: {
+                      id: true,
+                      label: true,
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+            take: 1,
+            orderBy: {
+              id: 'desc',
+            },
+          },
+        },
+      });
+
+      node['children'] = children.map((child) => formatNodeData(child));
+      // node_datas.push(formatNodeData(node));
+      node_datas.push(node);
+    }
+
+    // Préparer la réponse
+    const data = node_datas.map((n) => formatNodeData(n));
+
+    return {
+      message: translate(
+        'First children with their children retrieved successfully',
+      ),
+      data: {
+        data: data,
+        meta: nodes.meta,
       },
     };
   }
