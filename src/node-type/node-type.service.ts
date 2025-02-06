@@ -50,7 +50,8 @@ export class NodeTypeService {
         );
     }
     // check if the slug already exists
-    const value = getSlug(label);
+    // const value = getSlug(distributionChannel.label)  getSlug(label);
+    const value = `${getSlug(distributionChannel.value)}_${getSlug(label)}`;
     const exists = await this.prismaService.nodeType.findFirst({
       where: {
         value,
@@ -387,7 +388,7 @@ export class NodeTypeService {
     }
 
     // check if the slug already exists
-    const value = getSlug(label);
+    const value = `${getSlug(distributionChannel.value)}_${getSlug(label)}`;
     const exists = await this.prismaService.nodeType.findFirst({
       where: {
         value,

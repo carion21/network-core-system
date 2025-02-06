@@ -57,7 +57,7 @@ export class NodeService {
     }
 
     // Vérifier si le slug (valeur générée à partir du label) existe déjà
-    const value = getSlug(label);
+    const value = `${nodeType.value}_${getSlug(label)}`;
     const existingNode = await this.prismaService.node.findFirst({
       where: { value },
     });

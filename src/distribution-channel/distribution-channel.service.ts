@@ -34,7 +34,7 @@ export class DistributionChannelService {
       throw new NotFoundException(translate('Entity does not exist'));
 
     // check if the slug already exists
-    const value = getSlug(label);
+    const value = `${entity.value}_${getSlug(label)}`;
     const exists = await this.prismaService.distributionChannel.findFirst({
       where: { value },
     });
@@ -384,7 +384,7 @@ export class DistributionChannelService {
     });
     if (!entity)
       throw new NotFoundException(translate('Entity does not exist'));
-    const value = getSlug(label);
+    const value = `${entity.value}_${getSlug(label)}`;
     // check if the slug already exists
     const exists = await this.prismaService.distributionChannel.findFirst({
       where: { value },
